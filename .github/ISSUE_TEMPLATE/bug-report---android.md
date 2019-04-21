@@ -11,6 +11,9 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
+
+- [ ] I have tested this issue on the latest Detox release and it still reproduces
+
 Provide the steps necessary to reproduce the issue. If you are seeing a regression, try to provide the last known version where the issue did not reproduce.
 
 1. 
@@ -34,4 +37,4 @@ If applicable, add screenshots to help explain your problem.
  - OS: 
 
 **Device and Verbose Detox Logs**
-Provide the device and verbose Detox logs so we can understand what happened. You can obtain them by passing the loglevel param: `detox test --loglevel verbose`
+Provide the device and "trace" Detox logs so we can understand what happened. You can obtain them by passing the loglevel param: `detox test --loglevel trace`

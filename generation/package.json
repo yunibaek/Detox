@@ -1,6 +1,6 @@
 {
 	"name": "generation",
-	"version": "12.1.2",
+	"version": "12.4.0",
 	"description": "Generate wrapper code for native dependencies",
 	"main": "index.js",
 	"private": true,
@@ -30,7 +30,7 @@
 		"uuid": "^3.2.1"
 	},
 	"devDependencies": {
-		"jest": "^20.0.4",
+		"jest": "^24.0.0",
 		"lint-staged": "^6.0.0",
 		"prettier": "^1.8.2"
 	},
