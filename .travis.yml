@@ -28,19 +28,36 @@ matrix:
     - REACT_NATIVE_VERSION=0.59.x
     android:
       components:
-        - tools
-        - platform-tools
-        - build-tools-28.0.3
-        - android-28
-        - extra-google-google_play_services
-        - extra-google-m2repository
-        - extra-android-m2repository
-        - sys-img-x86-android-26
-        - sys-img-x86-android-28
+      - android-28
+      - android-26
+      - build-tools-28.0.3
+      - tools
+      - platform-tools
+      - extra-google-google_play_services
+      - extra-google-m2repository
+      - extra-android-m2repository
+      #- sys-img-x86-android-26
+      - sys-img-x86_64-android-26
     install:
+    # This is cause of react-native: react native's Gradle tasks partially run even without running Detox'
+    # compile-from-source flavour :-/
+    # TODO find a way to get rid of this step
+    - echo yes | sdkmanager ndk-bundle
+    - export ANDROID_NDK="$ANDROID_HOME/ndk-bundle"
+    # Need to update the tools so we'd have a decent 'emulator' bin and the newer 'avdmanager' (instead of the 'android' bin)
+    - echo yes | sdkmanager --update
+    - sdkmanager --list
     - ./scripts/install.android.sh
+    # Set up emulator
+    - avdmanager create avd --force --name Nexus_5X_API_26 --abi x86_64 --device "Nexus 5X" -k "system-images;android-26;default;x86_64"
+    - echo "skin.name=1080x1920" >> ~/.android/avd/Nexus_5X_API_26.avd/config.ini
+    - echo "vm.heapSize=512" >> ~/.android/avd/Nexus_5X_API_26.avd/config.ini
+    - echo "hw.ramSize=1024" >> ~/.android/avd/Nexus_5X_API_26.avd/config.ini
+    - /usr/local/android-sdk/tools/emulator @Nexus_5X_API_26 -verbose -no-window -no-snapshot -no-boot-anim -no-accel -noaudio -gpu swiftshader_indirect &
     script:
     - ./scripts/ci.android.sh
+#    cache:
+#    - directories:
   # Example Projects
   - language: objective-c
     os: osx
@@ -56,9 +73,11 @@ branches:
   only:
   - travis_integration
   - master
+
 before_install:
 - nvm install 10
 - pip install awscli --upgrade --user
+
 notifications:
   email: true
   slack:

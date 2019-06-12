@@ -1,3 +1,5 @@
+const log = require('./logger').child({ __filename });
+
 const DEFAULT_RETRIES = 10;
 const DEFAULT_INTERVAL = 500;
 
@@ -7,7 +9,7 @@ async function retry(options, func) {
     options = {};
   }
 
-  let {retries, interval} = options;
+  let {retries, interval, logEvent} = options;
   retries = retries || DEFAULT_RETRIES;
   interval = interval || DEFAULT_INTERVAL;
 
@@ -16,6 +18,10 @@ async function retry(options, func) {
     try {
       return await func(currentRetry);
     } catch (e) {
+      if (logEvent) {
+        log.debug({ event: logEvent }, e.message);
+      }
+
       if (currentRetry === retries) {
         throw e;
       } else {

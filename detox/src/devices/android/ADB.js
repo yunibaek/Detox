@@ -103,7 +103,7 @@ class ADB {
 
   async install(deviceId, apkPath) {
     apkPath = `"${escape.inQuotedString(apkPath)}"`;
-    
+
     const apiLvl = await this.apiLevel(deviceId);
 
     let childProcess;
@@ -157,6 +157,16 @@ class ADB {
       return (bootComplete === '1');
     } catch (ex) {
       return false;
+    }
+  }
+
+  async getWindowInFocus(deviceId) {
+    try {
+      let currentFocus = await this.shell(deviceId, `dumpsys window windows 2>/dev/null | grep -i mCurrentFocus`, { silent: true });
+      currentFocus = (currentFocus || '').trim().replace('mCurrentFocus=', '');
+      return currentFocus;
+    } catch (ex) {
+      return undefined;
     }
   }
 

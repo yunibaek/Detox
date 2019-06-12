@@ -5,7 +5,6 @@ const EmulatorTelnet = require('../android/EmulatorTelnet');
 const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
 const Environment = require('../../utils/environment');
 const retry = require('../../utils/retry');
-const sleep = require('../../utils/sleep');
 const AndroidDriver = require('./AndroidDriver');
 const ini = require('ini');
 const fs = require('fs');
