@@ -5,7 +5,6 @@ const EmulatorTelnet = require('../android/EmulatorTelnet');
 const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
 const Environment = require('../../utils/environment');
 const retry = require('../../utils/retry');
-const sleep = require('../../utils/sleep');
 const AndroidDriver = require('./AndroidDriver');
 const ini = require('ini');
 const fs = require('fs');
@@ -47,6 +46,10 @@ class EmulatorDriver extends AndroidDriver {
     }
 
     await this._waitForBootToComplete(adbName);
+
+    if (coldBoot) {
+      await this._waitForLauncherToLoad(adbName);
+    }
     await this.emitter.emit('bootDevice', { coldBoot, deviceId: adbName });
 
     return adbName;
@@ -107,6 +110,38 @@ class EmulatorDriver extends AndroidDriver {
         });
       }
     });
+  }
+
+  async _waitForLauncherToLoad(deviceId) {
+    let anrInFocus = false;
+
+    await retry( { retries: 120, interval: 3000, logEvent: 'AWAIT_LAUNCHER' }, async () => {
+      if (anrInFocus) {
+        anrInFocus = false;
+        await this._dismissANR(deviceId);
+      }
+
+      let currentFocus = await this.adb.getWindowInFocus(deviceId);
+      if (!currentFocus) {
+        throw new DetoxRuntimeError({ message: `Waiting for windows service in device ${deviceId}...` });
+      }
+      currentFocus = currentFocus.toLowerCase();
+
+      if (currentFocus.includes('not responding')) {
+        anrInFocus = true;
+        throw new DetoxRuntimeError({ message: `Detected an ANR alert in device ${deviceId}! Trying to dismiss it...` });
+      }
+
+      if (!currentFocus.includes('launcher')) {
+        throw new DetoxRuntimeError({ message: `Waiting for Launcher... (current focus is: ${currentFocus})`})
+      }
+    });
+  }
+
+  async _dismissANR(deviceId) {
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_DPAD_DOWN');
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_DPAD_DOWN');
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_ENTER');
   }
 
   async shutdown(deviceId) {
