@@ -78,6 +78,10 @@ Use the builtin keyboard to type text into a text field.
 await element(by.id('textField')).typeText('passcode');
 ```
 
+> **Note:** Make sure to toggle the software keyboard on text fields.
+>
+> To do this, open the simulator, tap any text field in your app, then select **Hardware** -> **Keyboard** -> **Toggle Software Keyboard** (⌘K) to automatically toggle the builtin keyboard on each time a text field is tapped in your tests.
+
 > **Note:** Make sure hardware keyboard is disconnected. Otherwise, Detox may fail when attempting to type text.
 >
 > To make sure hardware keyboard is disconnected, open the simulator from Xcode and make sure **Hardware** -> **Keyboard** -> **Connect Hardware Keyboard** is deselected (or press ⇧⌘K).
@@ -102,7 +106,7 @@ Scroll amount of pixels.<br>
 pixels - independent device pixels<br>
 direction - left/right/top/bottom<br>
 startPositionX - The X starting scroll position, in percentage; valid input: (0.0, 1.0), `NaN`; default: `NaN`—Choose the best value<br>
-startPositionX - The Y starting scroll position, in percentage; valid input: (0.0, 1.0), `NaN`; default: `NaN`—Choose the best value<br>
+startPositionY - The Y starting scroll position, in percentage; valid input: (0.0, 1.0), `NaN`; default: `NaN`—Choose the best value<br>
 
 ```js
 await element(by.id('scrollView')).scroll(100, 'down', NaN, 0.85);
@@ -160,5 +164,5 @@ dateFormat - format for the dateString supplied<br>
 
 ```js
 await expect(element(by.type('UIDatePicker'))).toBeVisible();
-await element(by.type('UIDatePicker)).setDatePickerDate('2019-02-06T05:10:00-08:00', "yyyy-MM-dd'T'HH:mm:ssZZZZZ");
+await element(by.type('UIDatePicker')).setDatePickerDate('2019-02-06T05:10:00-08:00', "yyyy-MM-dd'T'HH:mm:ssZZZZZ");
 ```

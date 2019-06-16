@@ -8,6 +8,7 @@ const log = require('../../utils/logger').child({ __filename });
 class DeviceDriverBase {
   constructor({ client }) {
     this.client = client;
+    this.matchers = null;
     this.emitter = new AsyncEmitter({
       events: [
         'bootDevice',
@@ -132,10 +133,6 @@ class DeviceDriverBase {
 
   async resetContentAndSettings() {
     return await Promise.resolve('');
-  }
-
-  defaultLaunchArgsPrefix() {
-    return '';
   }
 
   createRandomDirectory() {

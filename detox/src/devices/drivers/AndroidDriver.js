@@ -1,5 +1,6 @@
 const fs = require('fs');
 const _ = require('lodash');
+const { encodeBase64 } = require('../../utils/encoding');
 const log = require('../../utils/logger').child({ __filename });
 const invoke = require('../../invoke');
 const InvocationManager = invoke.InvocationManager;
@@ -19,6 +20,7 @@ const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
 const sleep = require('../../utils/sleep');
 const retry = require('../../utils/retry');
 const { interruptProcess, spawnAndLog } = require('../../utils/exec');
+const AndroidExpect = require('../../android/expect');
 
 const EspressoDetox = 'com.wix.detox.espresso.EspressoDetox';
 
@@ -26,9 +28,8 @@ class AndroidDriver extends DeviceDriverBase {
   constructor(config) {
     super(config);
 
-    this.expect = require('../../android/expect');
     this.invocationManager = new InvocationManager(this.client);
-    this.expect.setInvocationManager(this.invocationManager);
+    this.matchers = new AndroidExpect(this.invocationManager);
 
     this.adb = new ADB();
     this.aapt = new AAPT();
@@ -45,10 +46,6 @@ class AndroidDriver extends DeviceDriverBase {
       screenshot: (api) => new ADBScreencapPlugin({ api, adb, devicePathBuilder }),
       video: (api) => new ADBScreenrecorderPlugin({ api, adb, devicePathBuilder }),
     };
-  }
-
-  exportGlobals() {
-    this.expect.exportGlobals();
   }
 
   async getBundleIdFromBinary(apkPath) {
@@ -147,10 +144,6 @@ class AndroidDriver extends DeviceDriverBase {
     await super.cleanup(deviceId, bundleId);
   }
 
-  defaultLaunchArgsPrefix() {
-    return '-e ';
-  }
-
   getPlatform() {
     return 'android';
   }
@@ -201,17 +194,13 @@ class AndroidDriver extends DeviceDriverBase {
     await this.invocationManager.execute(call);
   }
 
-  async _launchInstrumentationProcess(deviceId, bundleId, launchArgs) {
+  async _launchInstrumentationProcess(deviceId, bundleId, rawLaunchArgs) {
+    const launchArgs = this._prepareLaunchArgs(rawLaunchArgs);
+    const additionalLaunchArgs = this._prepareLaunchArgs({debug: false});
     const testRunner = await this.adb.getInstrumentationRunner(deviceId, bundleId);
-    const args = [];
-    _.forEach(launchArgs, (value, key) => {
-      args.push(`${key} ${value}`);
-    });
+    const spawnFlags = [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, ...launchArgs, ...additionalLaunchArgs, testRunner];
 
-    this.instrumentationProcess = spawnAndLog(this.adb.adbBin,
-      [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`, `false`, testRunner],
-      { detached: false });
-
+    this.instrumentationProcess = spawnAndLog(this.adb.adbBin, spawnFlags, { detached: false });
     this.instrumentationProcess.childProcess.on('close', () => this._terminateInstrumentation());
   }
 
@@ -249,6 +238,15 @@ class AndroidDriver extends DeviceDriverBase {
 
   _resumeMainActivity() {
     return this.invocationManager.execute(DetoxApi.launchMainActivity());
+  }
+
+  _prepareLaunchArgs(launchArgs) {
+    return _.reduce(launchArgs, (result, value, key) => {
+      const valueAsString = _.isString(value) ? value : JSON.stringify(value);
+      const valueEncoded = (key.startsWith('detox')) ? valueAsString : encodeBase64(valueAsString);
+      result.push('-e', key, valueEncoded);
+      return result;
+    }, []);
   }
 }
 
