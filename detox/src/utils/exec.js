@@ -40,7 +40,7 @@ async function execWithRetriesAndLogs(bin, options, statusLogs, retries = 10, in
 
   if (result === undefined) {
     log.error({ event: 'EXEC_UNDEFINED' }, `command returned undefined`);
-    throw new DetoxRuntimeError(`command ${cmd} returned undefined`);
+    throw new DetoxRuntimeError({ message: `command ${cmd} returned undefined`});
   }
 
   _logExecOutput(log, result, verbosity === 'high' ? 'debug' : 'trace');

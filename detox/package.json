@@ -29,12 +29,15 @@
     "postinstall": "node scripts/postinstall.js"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.0.8",
     "eslint": "^4.11.0",
     "eslint-plugin-node": "^6.0.1",
     "jest": "24.6.x",
     "mockdate": "^2.0.1",
     "prettier": "1.7.0",
     "react-native": "0.59.8",
+    "typescript": "^3.5.2",
     "wtfnode": "^0.8.0"
   },
   "dependencies": {
@@ -55,6 +58,7 @@
     "tail": "^2.0.0",
     "telnet-client": "0.15.3",
     "tempfile": "^2.0.0",
+    "tslib": "^1.10.0",
     "ws": "^3.3.1",
     "yargs": "^13.0.0",
     "yargs-parser": "^13.0.0"
