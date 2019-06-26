@@ -1,33 +1,44 @@
 version: 2
-jobs:
-  build:
-    branches:
-      only:
-        - TravisCITest
-    # Specify the Xcode version to use
-    macos:
-      xcode: "10.2.1"
 
-    steps:
-      - checkout
-
-      - run: 
-          name: Install Dependencies
-          command: scripts/install.ios.sh
-            
-      - run:
-          name: Detox iOS CI
-          command: scripts/ci.ios.sh
-
-      # Collect XML test results data to show in the UI,
-      # and save the same XML files under test-results folder
-      # in the Artifacts tab
+detox-suite-template: &detox-suite-template
+  macos:
+    xcode: "10.2.1"
   
-      # - store_test_results:
-      #     path: test_output/report.xml
-      # - store_artifacts:
-      #     path: /tmp/test-results
-      #     destination: scan-test-results
-      # - store_artifacts:
-      #     path: ~/Library/Logs/scan
-      #     destination: scan-logs
+  steps:
+    - checkout
+
+    - run: 
+        name: Install Dependencies
+        command: scripts/install.ios.sh
+          
+    - run:
+        name: Detox iOS CI
+        command: scripts/ci.ios.sh
+
+jobs:
+  detox-suite-rn59-9:
+    enviroment:
+      REACT_NATIVE_VERSION: "0.59.9"
+    
+    <<: *detox-suite-template
+
+  detox-suite-rn58-6:      
+    enviroment:
+      REACT_NATIVE_VERSION: "0.58.6"
+    
+    <<: *detox-suite-template
+
+      
+workflows:
+  version: 2
+  test-detox-suite:
+    jobs:
+      - detox-suite-rn59:
+          filters:
+            branches:
+              only: TravisCITest
+      
+      - detox-suite:
+          filters:
+            branches:
+              only: TravisCITest
