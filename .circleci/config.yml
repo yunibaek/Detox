@@ -33,12 +33,12 @@ workflows:
   version: 2
   test-detox-suite:
     jobs:
-      - detox-suite-rn59:
+      - detox-suite-rn59-9:
           filters:
             branches:
               only: TravisCITest
       
-      - detox-suite:
+      - detox-suite-rn58-6:
           filters:
             branches:
               only: TravisCITest
