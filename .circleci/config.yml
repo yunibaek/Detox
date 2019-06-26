@@ -11,6 +11,10 @@ jobs:
     steps:
       - checkout
 
+      - run: 
+          name: Install Dependencies
+          command: install.ios.sh
+            
       - run:
           name: Detox iOS CI
           command: scripts/ci.ios.sh
