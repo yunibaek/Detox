@@ -32,7 +32,7 @@ jobs:
       - checkout
       - run:
           name: Come onnnnn
-          command: scripts/circle-install-android-sdk.sh
+          command: bash ./scripts/circle-install-android-sdk.sh
 
 workflows:
   version: 2
