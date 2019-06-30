@@ -32,7 +32,7 @@ jobs:
       - checkout
       - run:
           name: Install Dependencies
-          command: scripts/install.ios.sh
+          command: scripts/circle-install-android.sdk.sh
 
 workflows:
   version: 2
