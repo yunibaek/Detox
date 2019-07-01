@@ -13,6 +13,10 @@ cd "$TMP_DIR"
 curl "$ANDROID_SDK_URL" > "sdk.zip"
 unzip "sdk.zip" -d "$ANDROID_HOME"
 
+# jdk
+brew tap AdoptOpenJDK/openjdk
+brew install adoptopenjdk-openjdk8
+
 # install what you need
 yes | sdkmanager --licenses || :
 echo y | sdkmanager "platforms;android-${ANDROID_API}"
