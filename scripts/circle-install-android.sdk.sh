@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e -x
 # from https://gist.github.com/Igor1201/5036401727a9c178193b1e0688e1eb3c
 set -eo pipefail
 
