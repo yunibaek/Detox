@@ -24,3 +24,5 @@ echo y | sdkmanager "system-images;android-${ANDROID_API};google_apis;x86_64"
 echo y | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"  
 echo y | sdkmanager "extras;google;google_play_services"
 echo no | avdmanager create avd --force --name Nexus_5X_API_${ANDROID_API}  --abi x86_64 --device "Nexus 5X" -k "system-images;android-${ANDROID_API};google_apis;x86_64"
+
+/usr/local/share/android-sdk/emulator/emulator -verbose -gpu host -no-audio -no-window @Nexus_5X_API_${ANDROID_API}
