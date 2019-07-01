@@ -4,19 +4,15 @@ set -eo pipefail
 
 export ANDROID_HOME="/usr/local/share/android-sdk"
 export PATH="$PATH:$ANDROID_HOME/tools/bin"
+export ANDROID_API=28
 
 # set variables
-ANDROID_SDK_URL="https://dl.google.com/android/repository/sdk-tools-darwin-3859397.zip"
-ANDROID_SDK_SHA="4a81754a760fce88cba74d69c364b05b31c53d57b26f9f82355c61d5fe4b9df9"
+ANDROID_SDK_URL="https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip"
 TMP_DIR=$(mktemp -d)
-
-# clean
-rm -rf "$ANDROID_HOME"
 
 # download and install sdk
 cd "$TMP_DIR"
 curl "$ANDROID_SDK_URL" > "sdk.zip"
-echo "$ANDROID_SDK_SHA *sdk.zip" | shasum -c -s -a 256 -
 unzip "sdk.zip" -d "$ANDROID_HOME"
 
 # sdkmanager configuration
@@ -24,7 +20,15 @@ mkdir -p "$HOME/.android"
 echo "count=0" > "$HOME/.android/repositories.cfg"
 
 # install what you need
-echo y | sdkmanager "platforms;android-25"
-echo y | sdkmanager "build-tools;25.0.3"
+yes | sdkmanager --licenses
+echo y | sdkmanager "platforms;android-${ANDROID_API}"
+echo y | sdkmanager "platform-tools"
+echo y | sdkmanager "build-tools;28.0.3"
 echo y | sdkmanager "extras;android;m2repository"
 echo y | sdkmanager "extras;google;m2repository"
+echo y | sdkmanager "system-images;android-${ANDROID_API};google_apis;x86_64" 
+echo y | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"  
+echo y | sdkmanager "extras;google;google_play_services"
+echo no | avdmanager create avd --force --name Nexus_5X_API_26  --abi x86_64 --device "Nexus 5X" -k "system-images;android-${ANDROID_API};google_apis;x86_64"
+
+/usr/local/share/android-sdk/emulator/emulator -verbose -gpu host -no-audio -no-window @Nexus_5X_API_26
