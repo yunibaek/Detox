@@ -14,8 +14,8 @@ curl "$ANDROID_SDK_URL" > "sdk.zip"
 unzip "sdk.zip" -d "$ANDROID_HOME"
 
 # jdk
-brew tap AdoptOpenJDK/openjdk
-brew install adoptopenjdk-openjdk8
+HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew tap AdoptOpenJDK/openjdk
+HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install adoptopenjdk-openjdk8
 
 # install what you need
 yes | sdkmanager --licenses || :
