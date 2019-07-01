@@ -13,26 +13,40 @@ detox-suite-template: &detox-suite-template
         command: scripts/ci.ios.sh
     - store_artifacts:
         path: detox/test/artifacts
+        
+android-suite-template: &android-suite-template
+  macos:
+    xcode: "10.2.1"  
+  steps:
+    - checkout
+    - run:
+        name: Install Dependencies
+        command: scripts/install.android.sh
+    - run:
+        name: Detox Android CI
+        command: scripts/ci.android.sh
 
 jobs:
-  detox-suite-rn59-9:
-    <<: *detox-suite-template
+  ios-detox-suite-rn59-9:
     enviroment:
       REACT_NATIVE_VERSION: "0.59.9"
-  detox-suite-rn58-6:
     <<: *detox-suite-template
+  ios-detox-suite-rn58-6:
     enviroment:
       REACT_NATIVE_VERSION: "0.58.6"
-  android-install-time-test:
-    macos:
-      xcode: "10.2.1"
+    <<: *detox-suite-template
+  android-detox-suite-rn59-9:
     environment:
+      REACT_NATIVE_VERSION: "0.59.9"
+      ANDROID_API: "28"
       ANDROID_HOME: "/usr/local/share/android-sdk"
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: scripts/circle-install-android.sdk.sh
+    <<: *android-suite-template
+  android-detox-suite-rn58-6:
+    environment:
+      REACT_NATIVE_VERSION: "0.58.6"
+      ANDROID_API: "28"
+      ANDROID_HOME: "/usr/local/share/android-sdk"
+    <<: *android-suite-template
 
 workflows:
   version: 2
@@ -46,7 +60,7 @@ workflows:
       #     filters:
       #       branches:
       #      only: TravisCITest
-      - android-install-time-test:
+      - android-detox-suite-rn59-9:
           filters:
             branches:
               only: TravisCITest
