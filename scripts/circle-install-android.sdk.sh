@@ -14,7 +14,7 @@ curl "$ANDROID_SDK_URL" > "sdk.zip"
 unzip "sdk.zip" -d "$ANDROID_HOME"
 
 # install what you need
-yes | sdkmanager --licenses || ;
+yes | sdkmanager --licenses || :
 echo y | sdkmanager "platforms;android-${ANDROID_API}"
 echo y | sdkmanager "platform-tools"
 echo y | sdkmanager "build-tools;28.0.3"
