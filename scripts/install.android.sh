@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# jdk
+HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew untap adoptopenjdk/openjdk
+HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew cask install adoptopenjdk8
+
 $(dirname "$0")/install.sh
 
 export PATH="$PATH:$ANDROID_HOME/tools/bin"
@@ -12,9 +16,6 @@ TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
 curl "$ANDROID_SDK_URL" > "sdk.zip"
 unzip "sdk.zip" -d "$ANDROID_HOME"
-
-# jdk
-HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew cask install adoptopenjdk8
 
 # install what you need
 yes | sdkmanager --licenses || :
