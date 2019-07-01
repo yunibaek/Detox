@@ -1,7 +1,7 @@
 {
   "name": "detox",
   "description": "E2E tests and automation for mobile",
-  "version": "12.11.3",
+  "version": "13.0.1",
   "bin": {
     "detox": "local-cli/cli.js"
   },
@@ -104,7 +104,8 @@
       "src/android/espressoapi",
       "appdatapath.js",
       ".test.js",
-      ".mock.js"
+      ".mock.js",
+      "src/ios/expect.js"
     ],
     "resetMocks": true,
     "resetModules": true,
