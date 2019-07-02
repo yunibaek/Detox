@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+ANDROID_API=28
+ANDROID_HOME="/usr/local/share/android-sdk"
+echo 'export ANDROID_API=$ANDROID_API' >> $BASH_ENV
+echo 'export ANDROID_HOME=$ANDROID_HOME' >> $BASH_ENV
+
 # jdk
 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew untap adoptopenjdk/openjdk
 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew cask install adoptopenjdk8

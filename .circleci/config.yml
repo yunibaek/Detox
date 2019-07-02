@@ -38,14 +38,10 @@ jobs:
   android-detox-suite-rn59-9:
     environment:
       REACT_NATIVE_VERSION: "0.59.9"
-      ANDROID_API: "28"
-      ANDROID_HOME: "/usr/local/share/android-sdk"
     <<: *android-suite-template
   android-detox-suite-rn58-6:
     environment:
       REACT_NATIVE_VERSION: "0.58.6"
-      ANDROID_API: "28"
-      ANDROID_HOME: "/usr/local/share/android-sdk"
     <<: *android-suite-template
 
 workflows:
