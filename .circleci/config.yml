@@ -6,6 +6,9 @@ detox-suite-template: &detox-suite-template
   steps:
     - checkout
     - run:
+        name: Environment
+        command: env
+    - run:
         name: Install Dependencies
         command: scripts/install.ios.sh
     - run:
@@ -20,11 +23,18 @@ android-suite-template: &android-suite-template
   steps:
     - checkout
     - run:
+        name: Environment
+        command: env
+    - run:
         name: Install Dependencies
         command: scripts/install.android.sh
+    - store_artifacts:
+        path: $HOME/.detox.rc
     - run:
         name: Detox Android CI
         command: scripts/ci.android.sh
+    - store_artifacts:
+        path: detox/test/artifacts
 
 jobs:
   ios-detox-suite-rn59-9:
