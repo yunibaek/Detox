@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source $HOME/.detox.rc
+cat $BASH_ENV
 
 # Approve unapproved SDK licenses
 yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
