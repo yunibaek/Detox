@@ -10,6 +10,7 @@ const AndroidDriver = require('./AndroidDriver');
 const ini = require('ini');
 const fs = require('fs');
 const os = require('os');
+const log = require('../../utils/logger').child({ __filename });
 
 class EmulatorDriver extends AndroidDriver {
   constructor(config) {
@@ -44,6 +45,7 @@ class EmulatorDriver extends AndroidDriver {
     if (coldBoot) {
       await this.emulator.boot(avdName);
       adbName = await this._findADBNameByAVDName(avdName, { strict: true });
+      await this._waitForLauncherToLoad(adbName);
     }
 
     await this._waitForBootToComplete(adbName);
@@ -102,11 +104,47 @@ class EmulatorDriver extends AndroidDriver {
       const isBootComplete = await this.adb.isBootComplete(deviceId);
 
       if (!isBootComplete) {
-        throw new DetoxRuntimeError({
-          message: `Android device ${deviceId} has not completed its boot yet.`,
-        });
+        throw new DetoxRuntimeError({ message: `Android device ${deviceId} has not completed its boot yet.`});
       }
     });
+  }
+
+  async _waitForLauncherToLoad(deviceId) {
+    let anrInFocus = false;
+
+    await retry( { retries: 120, interval: 3000 }, async () => {
+      if (anrInFocus) {
+        anrInFocus = false;
+        await this._dismissANR(deviceId);
+      }
+
+      let currentFocus = await this.adb.getWindowInFocus(deviceId);
+      if (!currentFocus) {
+        const message = `Waiting for windows service in device ${deviceId}...`;
+        log.debug(message);
+        throw new DetoxRuntimeError({ message });
+      }
+      currentFocus = currentFocus.toLowerCase();
+
+      if (currentFocus.includes('not responding')) {
+        anrInFocus = true;
+        const message = `Detected an ANR alert in device ${deviceId}! Trying to dismiss it...`;
+        log.debug(message);
+        throw new DetoxRuntimeError({ message });
+      }
+
+      if (!currentFocus.includes('launcher')) {
+        const message = `Waiting for Launcher... (current focus is: ${currentFocus})`;
+        log.debug(message);
+        throw new DetoxRuntimeError({ message })
+      }
+    });
+  }
+
+  async _dismissANR(deviceId) {
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_DPAD_DOWN');
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_DPAD_DOWN');
+    await this.adb._sendKeyEvent(deviceId, 'KEYCODE_ENTER');
   }
 
   async shutdown(deviceId) {

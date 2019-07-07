@@ -164,6 +164,16 @@ class ADB {
     }
   }
 
+  async getWindowInFocus(deviceId) {
+    try {
+      let currentFocus = await this.shell(deviceId, `dumpsys window windows 2>/dev/null | grep -i mCurrentFocus`, { silent: true });
+      currentFocus = (currentFocus || '').trim().replace('mCurrentFocus=', '');
+      return currentFocus;
+    } catch (ex) {
+      return undefined;
+    }
+  }
+
   async apiLevel(deviceId) {
     if (this._cachedApiLevels.has(deviceId)) {
       return this._cachedApiLevels.get(deviceId);
