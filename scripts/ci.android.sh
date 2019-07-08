@@ -2,6 +2,12 @@
 
 cat $BASH_ENV
 
+export NVM_DIR="/opt/circleci/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install v10.15.3
+nvm alias default v10.15.3
+echo node -v $(node -v)
+
 # Approve unapproved SDK licenses
 yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
