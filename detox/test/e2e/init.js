@@ -10,7 +10,7 @@ jasmine.getEnv().addReporter(adapter);
 jasmine.getEnv().addReporter(specReporter);
 
 // Set the default timeout
-jest.setTimeout(590000);
+jest.setTimeout(5900000);
 
 beforeAll(async () => {
   await detox.init(config);

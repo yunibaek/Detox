@@ -42,6 +42,8 @@ class Emulator {
     const stdout = fs.openSync(tempLog, 'a');
     const stderr = fs.openSync(tempLog, 'a');
     const tail = new Tail(tempLog).on("line", (line) => {
+      log.trace('Got log line: ' + line);
+      
       if (line.includes('Adb connected, start proxing data')) {
         childProcessPromise._cpResolve();
       }
