@@ -1,5 +1,5 @@
 #!/bin/bash -e
-
+echo node -v $(node -v)
 ANDROID_API=28
 ANDROID_HOME="/usr/local/share/android-sdk"
 echo "export ANDROID_API=${ANDROID_API}" >> $BASH_ENV
@@ -31,7 +31,7 @@ echo y | sdkmanager "platform-tools"
 echo y | sdkmanager "build-tools;28.0.3"
 echo y | sdkmanager "extras;android;m2repository"
 echo y | sdkmanager "extras;google;m2repository"
-echo y | sdkmanager "system-images;android-${ANDROID_API};google_apis;x86_64" 
-echo y | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"  
+echo y | sdkmanager "system-images;android-${ANDROID_API};google_apis;x86_64"
+echo y | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
 echo y | sdkmanager "extras;google;google_play_services"
 echo no | avdmanager create avd --force --name Nexus_5X_API_${ANDROID_API}  --abi x86_64 --device "Nexus 5X" -k "system-images;android-${ANDROID_API};google_apis;x86_64"
