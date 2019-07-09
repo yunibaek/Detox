@@ -5,35 +5,38 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.test.espresso.UiController
-import androidx.test.espresso.action.MotionEvents
+import com.wix.detox.espresso.common.MotionEvents
 
 private const val LOG_TAG = "DetoxSyncedSwipeExec"
 private val PRECISION = floatArrayOf(1f, 1f)
 
 /**
- * Sync'ed implementation of a [SwipeExecutor] - i.e. makes sure each step is
+ * Sync'ed implementation of a [Swiper] - i.e. makes sure each step is
  * backed by proper delays when finished.
  *
- * @see DetoxSwiper
+ * @see DetoxSwipe
  */
-class SyncedSwipeExecutor(
+class SyncedSwiper @JvmOverloads constructor(
         private val uiController: UiController,
-        private val perMotionTimeMS: Long)
-    : SwipeExecutor {
+        private val perMotionTimeMS: Long,
+        private val motionEvents: MotionEvents = MotionEvents.instance,
+        private val androidPressedOnDuration: Int = ViewConfiguration.getPressedStateDuration(),
+        private val nowProvider: () -> Long = { SystemClock.uptimeMillis() })
+    : Swiper {
 
-    lateinit var downEvent: MotionEvent
+    private lateinit var downEvent: MotionEvent
 
     private var targetTime: Long = -1L
 
     override fun startAt(touchX: Float, touchY: Float) {
-        downEvent = MotionEvents.sendDown(uiController, floatArrayOf(touchX, touchY), PRECISION).down
+        downEvent = motionEvents.sendDown(uiController, touchX, touchY, PRECISION)!!
         targetTime = downEvent.downTime
     }
 
     override fun moveTo(targetX: Float, targetY: Float): Boolean {
-        if (!MotionEvents.sendMovement(uiController, downEvent, floatArrayOf(targetX, targetY))) {
+        if (!motionEvents.sendMovement(uiController, downEvent, targetX, targetY)) {
             Log.e(LOG_TAG, "Injection of move event as part of the scroll failed. Sending cancel event.")
-            MotionEvents.sendCancel(uiController, downEvent)
+            motionEvents.sendCancel(uiController, downEvent)
             return false
         }
 
@@ -43,9 +46,9 @@ class SyncedSwipeExecutor(
 
     override fun finishAt(releaseX: Float, releaseY: Float) {
         try {
-            if (!MotionEvents.sendUp(uiController, downEvent, floatArrayOf(releaseX, releaseY))) {
+            if (!motionEvents.sendUp(uiController, downEvent, releaseX, releaseY)) {
                 Log.e(LOG_TAG, "Injection of up event as part of the scroll failed. Sending cancel event.")
-                MotionEvents.sendCancel(uiController, downEvent)
+                motionEvents.sendCancel(uiController, downEvent)
             }
         } finally {
             downEvent.recycle()
@@ -55,20 +58,19 @@ class SyncedSwipeExecutor(
     }
 
     private fun syncMovement() {
-        val timeLeft = targetTime - SystemClock.uptimeMillis()
+        targetTime += perMotionTimeMS
+
+        val timeLeft = targetTime - nowProvider()
         if (timeLeft > 10) {
             uiController.loopMainThreadForAtLeast(timeLeft)
         }
-
-        targetTime += perMotionTimeMS
     }
 
     private fun syncRelease() {
         // Ensures that all child views leave the pressed-on state, if in effect.
         // This is paramount for having consequent tap-events registered properly.
-        val androidPressedDuration = ViewConfiguration.getPressedStateDuration()
-        if (androidPressedDuration > 0) {
-            uiController.loopMainThreadForAtLeast(androidPressedDuration.toLong())
+        if (androidPressedOnDuration > 0) {
+            uiController.loopMainThreadForAtLeast(androidPressedOnDuration.toLong())
         }
     }
 }

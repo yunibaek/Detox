@@ -170,13 +170,13 @@ public class ScrollHelper {
 
     private static void doScroll(final UiController uiController, int downX, int downY, int upX, int upY) {
         // TODO lambda
-        final Function1<Integer, SwipeExecutor> swipeExecutorProvider = new Function1<Integer, SwipeExecutor>() {
+        final Function1<Integer, Swiper> swipeExecutorProvider = new Function1<Integer, Swiper>() {
             @Override
-            public SwipeExecutor invoke(Integer perMotionTimeMS) {
-                return new SyncedSwipeExecutor(uiController, perMotionTimeMS);
+            public Swiper invoke(Integer perMotionTimeMS) {
+                return new SyncedSwiper(uiController, perMotionTimeMS);
             }
         };
-        final DetoxSwiper detoxSwiper = new DetoxSwiper(downX, downY, upX, upY, SCROLL_DURATION_MS, SCROLL_MOTIONS, swipeExecutorProvider);
-        detoxSwiper.perform();
+        final DetoxSwipe detoxSwipe = new DetoxSwipe(downX, downY, upX, upY, SCROLL_DURATION_MS, SCROLL_MOTIONS, swipeExecutorProvider);
+        detoxSwipe.perform();
     }
 }

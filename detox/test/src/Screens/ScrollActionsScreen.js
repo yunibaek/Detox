@@ -24,7 +24,12 @@ export default class ScrollActionsScreen extends Component {
   renderItem(id) {
     const key = `listItem.${id}`;
     return (
-      <TouchableOpacity key={key} testID={key} onPress={() => Alert.alert('Alert', `Alert(Item #${id})`)}>
+      <TouchableOpacity
+        key={key}
+        testID={key}
+        onPress={() => Alert.alert('Alert', `Alert(Item #${id})`)}
+        onLongPress={() => Alert.alert('Alert', `Alert(Item #${id}).LongPress`)}
+      >
         <Text style={{ height: 30, backgroundColor: '#e8e8f8', padding: 5, margin: 10 }}>{`Text${id}`}</Text>
       </TouchableOpacity>
     );

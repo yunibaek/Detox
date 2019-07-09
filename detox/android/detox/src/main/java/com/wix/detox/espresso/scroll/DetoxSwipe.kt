@@ -1,7 +1,7 @@
 package com.wix.detox.espresso.scroll
 
 /**
- * Along with [SyncedSwipeExecutor], this was taken from Espresso's own implementation of Swiping
+ * Along with [SyncedSwiper], this was taken from Espresso's own implementation of Swiping
  * (i.e. in [androidx.test.espresso.action.Swipe] - typically dispatched via the
  * [androidx.test.espresso.action.GeneralSwipeAction] action class).
  *
@@ -12,14 +12,14 @@ package com.wix.detox.espresso.scroll
  * - Total swipe time _isn't_ hardcoded: Espresso's impl only allows for SLOW=1.5s and FAST=150ms.
  * - More performant: no steps array, no preallocated motion events array. Just code.
  */
-class DetoxSwiper(
+class DetoxSwipe(
         private val startX: Float,
         private val startY: Float,
         private val endX: Float,
         private val endY: Float,
         private val swipeDuration: Int,
         private val motionCount: Int,
-        private val swipeExecutorProvider: (perMotionTime: Int) -> SwipeExecutor) {
+        private val swipeExecutorProvider: (perMotionTime: Int) -> Swiper) {
 
     fun perform() {
         val swipeExecutor = swipeExecutorProvider(swipeDuration / motionCount)
