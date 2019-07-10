@@ -24,7 +24,7 @@ function adaptLogLevelName(level) {
 
 function createPlainBunyanStream({ logPath, level }) {
   const options = {
-    showDate: false,
+    showDate: true,
     showLoggerName: true,
     showPid: true,
     showMetadata: false,
