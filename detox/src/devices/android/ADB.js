@@ -168,6 +168,7 @@ class ADB {
     try {
       let currentFocus = await this.shell(deviceId, `dumpsys window windows 2>/dev/null | grep -i mCurrentFocus`, { silent: true });
       currentFocus = (currentFocus || '').trim().replace('mCurrentFocus=', '');
+      currentFocus = (currentFocus === "null" ? undefined : currentFocus);
       return currentFocus;
     } catch (ex) {
       return undefined;

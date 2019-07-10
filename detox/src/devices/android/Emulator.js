@@ -28,6 +28,7 @@ class Emulator {
     const emulatorArgs = _.compact([
       '-verbose',
       '-no-audio',
+      '-no-snapshot-load',
       argparse.getArgValue('headless') ? '-no-window' : '',
       `@${emulatorName}`
     ]);
@@ -43,8 +44,9 @@ class Emulator {
     const stderr = fs.openSync(tempLog, 'a');
     const tail = new Tail(tempLog).on("line", (line) => {
       log.trace('Got log line: ' + line);
-      
-      if (line.includes('Adb connected, start proxing data')) {
+
+      if (line.includes('Adb connected, start proxing data') ||
+          line.includes('emulator: control console listening on port')) {
         childProcessPromise._cpResolve();
       }
     });
