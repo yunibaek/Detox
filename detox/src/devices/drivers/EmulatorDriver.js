@@ -133,11 +133,11 @@ class EmulatorDriver extends AndroidDriver {
         throw new DetoxRuntimeError({ message });
       }
 
-      if (!currentFocus.includes('launcher')) {
-        const message = `Waiting for Launcher... (current focus is: ${currentFocus})`;
-        log.debug(message);
-        throw new DetoxRuntimeError({ message })
-      }
+      // if (!currentFocus.includes('launcher')) {
+      //   const message = `Waiting for Launcher... (current focus is: ${currentFocus})`;
+      //   log.debug(message);
+      //   throw new DetoxRuntimeError({ message })
+      // }
     });
   }
 
