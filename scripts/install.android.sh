@@ -1,5 +1,9 @@
 #!/bin/bash -e
 echo node -v $(node -v)
+
+$(dirname "$0")/install.sh
+
+if [ -z "$ZZ_BITRISE" ]; then
 ANDROID_API=28
 ANDROID_HOME="/usr/local/share/android-sdk"
 echo "export ANDROID_API=${ANDROID_API}" >> $BASH_ENV
@@ -10,8 +14,6 @@ cat $BASH_ENV
 # jdk
 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew untap adoptopenjdk/openjdk
 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew cask install adoptopenjdk8
-
-$(dirname "$0")/install.sh
 
 export PATH="$PATH:$ANDROID_HOME/tools/bin"
 
@@ -35,3 +37,4 @@ echo y | sdkmanager "system-images;android-${ANDROID_API};google_apis;x86_64"
 echo y | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
 echo y | sdkmanager "extras;google;google_play_services"
 echo no | avdmanager create avd --force --name Nexus_5X_API_${ANDROID_API}  --abi x86_64 --device "Nexus 5X" -k "system-images;android-${ANDROID_API};google_apis;x86_64"
+fi
