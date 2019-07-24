@@ -30,21 +30,19 @@ DTX_CREATE_LOG(WXJSTimerObservationIdlingResource)
 	return self;
 }
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+- (BOOL)respondsToSelector:(SEL)aSelector
 {
-	NSMethodSignature* sig = [super methodSignatureForSelector:aSelector];
-	
-	if(sig == nil)
-	{
-		sig = [_timers methodSignatureForSelector:aSelector];
-	}
-	
-	return sig;
+	return [super respondsToSelector:aSelector] || [_timers respondsToSelector:aSelector];
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (id)forwardingTargetForSelector:(SEL)aSelector
 {
-	[anInvocation invokeWithTarget:_timers];
+	if([super respondsToSelector:aSelector])
+	{
+		return self;
+	}
+	
+	return _timers;
 }
 
 - (void)addObservedTimer:(NSNumber*)observedNumber
@@ -123,28 +121,31 @@ DTX_CREATE_LOG(WXJSTimerObservationIdlingResource)
 		method_setImplementation(m, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
 			__strong __typeof(weakSelf) strongSelf = weakSelf;
 			
-			dispatch_sync(_timersObservationQueue, ^{
-				_WXJSTimingObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
-				
-				if(_observationWrapper == nil)
-				{
-					_observationWrapper = [[_WXJSTimingObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"]];
-					[_self setValue:_observationWrapper forKey:@"_timers"];
-					[strongSelf->_observations setObject:_observationWrapper forKey:_self];
-				}
-				
-				
-				if(duration > 0 && duration <= _durationThreshold && repeats == NO)
-				{
-					dtx_log_info(@"Observing timer: %@ d: %@ r: %@", timerID, @(duration), @(repeats));
+			if(strongSelf != nil)
+			{
+				dispatch_sync(_timersObservationQueue, ^{
+					_WXJSTimingObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
 					
-					[_observationWrapper addObservedTimer:timerID];
-				}
-				else
-				{
-					dtx_log_info(@"Ignoring timer: %@ failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
-				}
-			});
+					if(_observationWrapper == nil)
+					{
+						_observationWrapper = [[_WXJSTimingObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"]];
+						[_self setValue:_observationWrapper forKey:@"_timers"];
+						[strongSelf->_observations setObject:_observationWrapper forKey:_self];
+					}
+					
+					
+					if(duration > 0 && duration <= _durationThreshold && repeats == NO)
+					{
+						dtx_log_info(@"Observing timer: %@ d: %@ r: %@", timerID, @(duration), @(repeats));
+						
+						[_observationWrapper addObservedTimer:timerID];
+					}
+					else
+					{
+						dtx_log_info(@"Ignoring timer: %@ failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
+					}
+				});
+			}
 			
 			orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
 		}));

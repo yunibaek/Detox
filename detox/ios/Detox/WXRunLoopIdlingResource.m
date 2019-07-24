@@ -133,7 +133,7 @@ static void __setupRNSupport()
 		
 		CFRunLoopAddObserver((__bridge CFRunLoopRef)_runLoop, CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopEntry | kCFRunLoopBeforeTimers | kCFRunLoopBeforeSources | kCFRunLoopBeforeWaiting | kCFRunLoopAfterWaiting | kCFRunLoopExit, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
 			BOOL busy;
-//			dtx_log_info(@"Current runloop activity: %@", [self translateRunLoopActivity: activity]);
+			dtx_log_info(@"Current runloop activity: %@", [self translateRunLoopActivity: activity]);
 			
 			if(activity & kCFRunLoopBeforeWaiting || activity & kCFRunLoopExit)
 			{

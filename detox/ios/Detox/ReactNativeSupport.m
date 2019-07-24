@@ -215,7 +215,8 @@ static void __setupRNSupport()
 	
 	[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXRNLoadIdlingResource new]];
 	
-	if([WXAnimatedDisplayLinkIdlingResource isAvailable]) {
+	if([WXAnimatedDisplayLinkIdlingResource isAvailable])
+	{
 		dtx_log_info(@"Adding idling resource for Animated display link");
 		
 		[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXAnimatedDisplayLinkIdlingResource new]];

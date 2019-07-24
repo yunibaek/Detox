@@ -17,14 +17,21 @@ static NSString * const _nodesManagerDisplayLinkPath = @"_nodesManager._displayL
 
 + (BOOL)isAvailable
 {
-	@try {
+	@try
+	{
 		Class animatedModuleClass = NSClassFromString(_RCTNativeAnimatedModuleClass);
 		id animatedModule = [[animatedModuleClass alloc] init];
 
-		if(!animatedModule) return NO;
+		if(animatedModule == nil)
+		{
+			return NO;
+		}
+		
 		[animatedModule valueForKeyPath:_nodesManagerDisplayLinkPath];
 		return YES;
-	} @catch(id ex) {
+	}
+	@catch(id ex)
+	{
 		return NO;
 	}
 }
@@ -43,7 +50,10 @@ static NSString * const _nodesManagerDisplayLinkPath = @"_nodesManager._displayL
 {
 	id bridgeClass = NSClassFromString(@"RCTBridge");
 	SEL currentBridgeSelector = @selector(currentBridge);
-	if(! [bridgeClass respondsToSelector:currentBridgeSelector]) return YES;
+	if([bridgeClass respondsToSelector:currentBridgeSelector] == NO)
+	{
+		return YES;
+	}
 	
 	id (*currentBridgeFunction)(id, SEL) = (id (*)(id, SEL))[bridgeClass methodForSelector:currentBridgeSelector];
 	id<RN_RCTBridge> bridge = currentBridgeFunction(bridgeClass, currentBridgeSelector);

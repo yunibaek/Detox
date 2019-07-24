@@ -97,7 +97,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-detoxPrintBusyIdleResources YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-detoxUserActivityDataURL /Users/lnatan/Desktop/user-activity.json"
