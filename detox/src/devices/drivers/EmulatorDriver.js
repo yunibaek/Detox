@@ -13,12 +13,20 @@ const DeviceRegistry = require('../DeviceRegistry');
 
 const DetoxEmulatorsPortRange = {
   min: 10000,
-  max: 20000
+  max: 20000,
+};
+
+const DetoxADBServerPortsRange = {
+  min: 20001,
+  max: 21000,
 };
 
 class EmulatorDriver extends AndroidDriver {
   constructor(config) {
-    super(config);
+    super({
+      ...config,
+      adbPort: getRandomPortInRange(DetoxADBServerPortsRange),
+    });
 
     this.emulator = new Emulator();
     this.deviceRegistry = new DeviceRegistry({
@@ -58,7 +66,7 @@ class EmulatorDriver extends AndroidDriver {
 
     if (coldBoot) {
       const port = this.pendingBoots[adbName];
-      await this.emulator.boot(avdName, {port});
+      await this.emulator.boot(avdName, {port, adbPort: this.adb.serverPort});
       delete this.pendingBoots[adbName];
     }
 
@@ -143,8 +151,7 @@ class EmulatorDriver extends AndroidDriver {
   }
 
   async _createDevice() {
-    const {min, max} = DetoxEmulatorsPortRange;
-    let port = Math.random() * (max - min) + min;
+    let port = getRandomPortInRange(DetoxEmulatorsPortRange);
     port = port & (~0 - 1);
 
     const adbName = `emulator-${port}`;
@@ -152,5 +159,7 @@ class EmulatorDriver extends AndroidDriver {
     return adbName;
   }
 }
+
+const getRandomPortInRange = ({min, max}) => Math.round(Math.random() * (max - min) + min);
 
 module.exports = EmulatorDriver;

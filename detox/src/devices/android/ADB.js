@@ -7,9 +7,12 @@ const EmulatorTelnet = require('./EmulatorTelnet');
 const Environment = require('../../utils/environment');
 
 class ADB {
-  constructor() {
+  constructor(port) {
     this._cachedApiLevels = new Map();
     this.adbBin = path.join(Environment.getAndroidSDKPath(), 'platform-tools', 'adb');
+
+    this.serverPort = port;
+    this.serverPortArg = port ? `-P ${port} ` : '';
   }
 
   async devices() {
@@ -246,13 +249,13 @@ class ADB {
   }
 
   async _adbDevices() {
-    const output = (await this.adbCmd('', 'devices', { verbosity: 'high' })).stdout;
+    const output = (await this.adbCmd('', `devices`, { verbosity: 'high' })).stdout;
     return new AdbDevicesParser(output);
   }
 
   async adbCmd(deviceId, params, options) {
-    const serial = `${deviceId ? `-s ${deviceId}` : ''}`;
-    const cmd = `${this.adbBin} ${serial} ${params}`;
+    const serial = `${deviceId ? `-s ${deviceId} ` : ''}`;
+    const cmd = `${this.adbBin} ${this.serverPortArg}${serial}${params}`;
     const retries = _.get(options, 'retries', 1);
     _.unset(options, 'retries');
 

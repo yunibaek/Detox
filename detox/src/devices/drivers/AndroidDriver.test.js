@@ -67,11 +67,22 @@ describe('Android driver', () => {
       });
     });
   });
+
+  it('should assign an ADB-server port via config', async () => {
+    const AndroidDriver = require('./AndroidDriver');
+    uut = new AndroidDriver({
+      client: {},
+      adbPort: 1337,
+    });
+
+    expect(uut.adb.port).toEqual(1337);
+  });
 });
 
 class mockADBClass {
-  constructor() {
+  constructor(port) {
     this.getInstrumentationRunner = jest.fn();
+    this.port = port;
   }
 }
 

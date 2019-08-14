@@ -15,13 +15,10 @@ const ADBLogcatPlugin = require('../../artifacts/log/android/ADBLogcatPlugin');
 const ADBScreencapPlugin = require('../../artifacts/screenshot/ADBScreencapPlugin');
 const ADBScreenrecorderPlugin = require('../../artifacts/video/ADBScreenrecorderPlugin');
 const AndroidDevicePathBuilder = require('../../artifacts/utils/AndroidDevicePathBuilder');
-const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
 const sleep = require('../../utils/sleep');
 const retry = require('../../utils/retry');
 const { interruptProcess, spawnAndLog } = require('../../utils/exec');
 const AndroidExpect = require('../../android/expect');
-
-const EspressoDetox = 'com.wix.detox.espresso.EspressoDetox';
 
 class AndroidDriver extends DeviceDriverBase {
   constructor(config) {
@@ -31,7 +28,7 @@ class AndroidDriver extends DeviceDriverBase {
     this.matchers = new AndroidExpect(this.invocationManager);
     this.uiDevice = new UiDeviceProxy(this.invocationManager).getUIDevice();
 
-    this.adb = new ADB();
+    this.adb = new ADB(config.adbPort);
     this.aapt = new AAPT();
 
     this.pendingUrl = undefined;
@@ -196,13 +193,17 @@ class AndroidDriver extends DeviceDriverBase {
     await this.invocationManager.execute(call);
   }
 
+  // TODO Use this.adb for this!!!
   async _launchInstrumentationProcess(deviceId, bundleId, rawLaunchArgs) {
     const launchArgs = this._prepareLaunchArgs(rawLaunchArgs);
     const additionalLaunchArgs = this._prepareLaunchArgs({debug: false});
     const testRunner = await this.adb.getInstrumentationRunner(deviceId, bundleId);
     const spawnFlags = [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, ...launchArgs, ...additionalLaunchArgs, testRunner];
+    const env = {
+      ANDROID_ADB_SERVER_PORT: this.adb.serverPort
+    };
 
-    this.instrumentationProcess = spawnAndLog(this.adb.adbBin, spawnFlags, { detached: false });
+    this.instrumentationProcess = spawnAndLog(this.adb.adbBin, spawnFlags, { detached: false, env });
     this.instrumentationProcess.childProcess.on('close', () => this._terminateInstrumentation());
   }
 

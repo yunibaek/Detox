@@ -23,7 +23,7 @@ class Emulator {
     return (await exec(`${this.emulatorBin} ${cmd}`)).stdout;
   }
 
-  async boot(emulatorName, options = {port: undefined}) {
+  async boot(emulatorName, options = {port: undefined, adbPort: undefined}) {
     const emulatorArgs = _.compact([
       '-verbose',
       '-no-audio',
@@ -39,6 +39,11 @@ class Emulator {
     if(gpuMethod) {
       emulatorArgs.push('-gpu', gpuMethod);
     }
+
+    const env = {
+      ...process.env,
+      ANDROID_ADB_SERVER_PORT: options.adbPort ? options.adbPort.toString() : '',
+    };
 
     let childProcessOutput;
     const tempLog = `./${emulatorName}-${options.port}.log`;
@@ -72,7 +77,7 @@ class Emulator {
 
     let log = unitLogger.child({ fn: 'boot' });
     log.debug({ event: 'SPAWN_CMD' }, this.emulatorBin, ...emulatorArgs);
-    const childProcessPromise = spawn(this.emulatorBin, emulatorArgs, { detached: true, stdio: ['ignore', stdout, stderr] });
+    const childProcessPromise = spawn(this.emulatorBin, emulatorArgs, { detached: true, stdio: ['ignore', stdout, stderr], env });
     childProcessPromise.childProcess.unref();
     log = log.child({ child_pid: childProcessPromise.childProcess.pid });
 

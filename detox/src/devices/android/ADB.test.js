@@ -46,7 +46,7 @@ describe('ADB', () => {
   describe('devices', () => {
     it(`should invoke ADB`, async () => {
       await adb.devices();
-      expect(exec).toHaveBeenCalledWith(`${adbBinPath}  devices`, { verbosity: 'high' }, undefined, 1);
+      expect(exec).toHaveBeenCalledWith(`${adbBinPath} devices`, { verbosity: 'high' }, undefined, 1);
       expect(exec).toHaveBeenCalledTimes(1);
     });
 
@@ -110,28 +110,26 @@ describe('ADB', () => {
     });
   });
 
-  describe('lookup device', () => {
-    it('should look up a device by matcher', async () => {
-      const adbDevices = 'List of devices attached\n'
-        + 'MOCK_SERIAL\tdevice\n'
-        + '192.168.60.101:6666\tdevice\n'
-        + 'emulator-5554\tdevice\n'
-        + 'emulator-5556\tdevice\n'
-        + '\n';
-      const matcher = jest.fn()
-        .mockReturnValueOnce(false)
-        .mockReturnValueOnce(false)
-        .mockReturnValueOnce(true);
+  it('should look up a device by matcher', async () => {
+    const adbDevices = 'List of devices attached\n'
+      + 'MOCK_SERIAL\tdevice\n'
+      + '192.168.60.101:6666\tdevice\n'
+      + 'emulator-5554\tdevice\n'
+      + 'emulator-5556\tdevice\n'
+      + '\n';
+    const matcher = jest.fn()
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
 
-      exec.mockReturnValue({
-        stdout: adbDevices,
-      });
-
-      const result = await adb.findDevice(matcher);
-
-      expect(result.adbName).toEqual('emulator-5554');
-      expect(matcher).toHaveBeenCalledTimes(3);
+    exec.mockReturnValue({
+      stdout: adbDevices,
     });
+
+    const result = await adb.findDevice(matcher);
+
+    expect(result.adbName).toEqual('emulator-5554');
+    expect(matcher).toHaveBeenCalledTimes(3);
   });
 
   it(`install`, async () => {
@@ -251,6 +249,29 @@ describe('ADB', () => {
 
     expect(adb.shell).toBeCalledWith('aDeviceId', 'pm list instrumentation');
     expect(result).toEqual(expectedRunner);
+  });
+
+  describe('with a custom ADB-server port', () => {
+    it('should use the custom port in devices() exec', async () => {
+      const adb6666 = new ADB(6666);
+
+      await adb6666.devices();
+
+      expect(exec).toHaveBeenCalledWith(`${adbBinPath} -P 6666 devices`, { verbosity: 'high' }, undefined, 1);
+      expect(exec).toHaveBeenCalledTimes(1);
+    });
+
+    it('should use the custom port in all execs', async () => {
+      const adb6667 = new ADB(6667);
+
+      await adb6667.install('', 'path inside "quotes" to/app');
+
+      expect(exec).toHaveBeenCalledWith(
+        expect.stringContaining('adb -P 6667 shell "getprop ro.build.version.sdk"'),
+        expect.anything(),
+        undefined,
+        expect.anything());
+    });
   });
 });
 
